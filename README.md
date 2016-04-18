@@ -57,12 +57,13 @@ You can get the monitor as NPM module by using the following command
 
         npm install node-cluster-monitor
 
-and next use it as an embedded Node.js module (see below).
+and next use it as an embedded Node.js module (see below).  
+Please note that you should create the __log__ folder somewhere in or above your project. This will be used to logging monitor records.
 
 #### Customizing and Usage
 ##### The activation of monitor pluging can be done very easily 
 
-You need to add the following two lines in your code  
+You need to add the following two lines in your workers code  
 
         var monitor = require('node-cluster-monitor');// insert monitor module-plugin
         ....
@@ -120,15 +121,15 @@ So, you can start Node cluster by command
 
 The cluster will listen on HTTP port (8080) which will be monitored.  
   
-<a href="http://imgur.com/k6qaP"><img src="http://i.imgur.com/k6qaP.png" title="Node cluster monitoring test" /></a>
+<a href="http://imgur.com/k6qaP"><img src="http://i.imgur.com/IoJfNQR.png" title="Node cluster monitoring test" /></a>
 
 Double-clicking on any line can be switching fixed (tabular view) to the flexible one.  
 
-<a href="http://imgur.com/JiRBX"><img src="http://i.imgur.com/JiRBX.png" title="Node cluster monitoring test" /></a>
+<a href="http://imgur.com/JiRBX"><img src="http://i.imgur.com/Me5czze.png" title="Node cluster monitoring test" /></a>
 
 You can also see the grafical view for any numerical values.  
 
-<a href="http://imgur.com/YIZIc"><img src="http://i.imgur.com/YIZIc.png" title="Node cluster monitoring test" /></a>
+<a href="http://imgur.com/YIZIc"><img src="http://i.imgur.com/jWfuzzs.png" title="Node cluster monitoring test" /></a>
 
 It can be noticed that the testing Node server is alive and have quite good state.  
 
