@@ -1,0 +1,36 @@
+{
+  "name": "node-cluster-monitor",
+  "version": "0.5.13",
+  "description": "Node.js cluster monitor module",
+  "main": "./node_monitor_plugin/src/monitor",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/shunanya/Node.js-cluster-monitoring.git"
+  },
+  "dependencies": {
+    "log4js": ">= 0.6.0",
+    "node_hash": ">= 0.2.0"
+  },
+  "keywords": [
+    "Node.js",
+    "Cluster",
+    "Monitoring"
+  ],
+  "author": {
+	"name": "Simon Hunanyan",
+	"email": "simon.hunanyan@monitis.com"
+   },
+   "bugs": {
+       "url": "http://github.com/shunanya/Node.js-cluster-monitoring/issues"
+   },
+   "engines": [ "node >=4.0.0" ],
+   "directories": {
+       "log": "./log",
+       "properties": "./node_monitor_plugin/properties",
+       "src": "./node_monitor_plugin/src"
+   },
+   "license": "MIT"
+}
