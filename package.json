@@ -1,6 +1,6 @@
 {
   "name": "node-cluster-monitor",
-  "version": "0.5.14",
+  "version": "0.5.20",
   "description": "Node.js cluster monitor module",
   "main": "./node_monitor_plugin/src/monitor",
   "scripts": {
