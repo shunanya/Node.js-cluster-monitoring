@@ -66,7 +66,7 @@ echo "Node.js Monitor starting..."
 
 echo switching to $tmp and start - node.js cluster monitor
 
-python $tmp/node_monitor_start.py $param & #> /dev/null &
+python $tmp/node_monitor_start.py $param 1> /dev/null &
 
 echo "Node.js Clustermonitor ran with code $?" >&2
 

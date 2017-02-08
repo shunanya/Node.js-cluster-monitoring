@@ -58,7 +58,6 @@ class Api:
 #        authToken = self.getAuthToken()
         if(self.__authToken is None):
             self.updateAuthToken()
-##            self.__authToken = self.__authToken+'a'
         data[config.P_AUTH_TOKEN] = self.__authToken
         headers = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'text/plain'}
         connection.request('POST', self.__apiPath, urllib.urlencode(data), headers)
