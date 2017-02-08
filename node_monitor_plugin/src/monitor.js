@@ -27,7 +27,7 @@ var STATUS_DOWN = 'DOWN';
 var STATUS_IDLE = 'IDLE';
 var DURATION = 1;
 var FILE_PATH = path.join(utils.search_file('./log/', '/home/vesta/log/'), "monitor_result");
-var inited = false;
+var schedule = null;
 // ***********************
 
 var monitors = [];
@@ -188,17 +188,16 @@ function addToMonitors(server, options) {
 		monitors.push(mon_server);
 		logger.info(worker+": Server " + host + " added to monitors chain ("+monitors.length+")");
 		logger.info(worker+": Monitoring data will be put into '"+FILE_PATH+"'");
-		if (!inited) {
-			var delay = getDelayToNearestMinute(DURATION)+utils.toInt(worker)*500;
-			logger.info(worker+": Delay to the nearest info: "+delay+" next sending at "+new Date(Date.now()+delay));
-	
-			setTimeout(function(){
-				putMeasuredData(worker);
-				setInterval(function() {
-					putMeasuredData(worker);	
-				}, DURATION*60000);
-			}, delay);
-			inited = true;
+		if (!schedule) {
+			schedule = require('node-schedule');
+			var rule = new schedule.RecurrenceRule();
+
+			rule.minute = new schedule.Range(0, 59, DURATION);
+			rule.second = utils.toInt(options.worker);
+
+			schedule.scheduleJob(rule, function(){
+				putMeasuredData(options.worker);
+			});
 		}
 		return mon_server;
 	}

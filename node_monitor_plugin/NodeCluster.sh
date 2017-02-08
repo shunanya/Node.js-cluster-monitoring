@@ -69,7 +69,7 @@ echo switching to $tmp and start - node cluster
 opt="--nouse-idle-notification --max-old-space-size=4096"
 
 #node $opt $tmp/cluster.js 1> /dev/null &
-node $tmp/cluster.js & #> /dev/null &
+node $tmp/cluster.js 1> /dev/null &
 
 echo "node Cluster ran with code $?" >&2
 

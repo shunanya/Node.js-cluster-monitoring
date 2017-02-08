@@ -55,7 +55,6 @@ function dirname(value){
 		}
 		return value;
 	}
-	return;
 }
 exports.dirname = dirname;
 
@@ -106,12 +105,12 @@ exports.temp_write = function(file_name, data, type, append){
 //write file asynchronously
 //Note that this doesn't a synchronous blocking call.
 function file_write(file_path, data, type, append, callback) {
-	if (type != undefined && type == 'binary') {// binary file cannot be appended
+	if (type !== undefined && type == 'binary') {// binary file cannot be appended
 		try {
 			fs.unlinkSync(file_path);
 		} catch (e) {/* nothing to do */}
 	}
-	var file1 = fs.createWriteStream(file_path, {'flags' : (append != undefined ? 'a' : 'w')});
+	var file1 = fs.createWriteStream(file_path, {'flags' : (append !== undefined ? 'a' : 'w')});
 	if (file1) {
 		file1.on('error', function(err) {
 			return callback(err);
@@ -245,13 +244,11 @@ exports.str2bytes = function(str, bytesPerSymbol){
 	var arr=[];
 		
 	for (var i=0;i<str.length;i++){			
-			var chCode = str.charCodeAt(i);			
-			var temp=chCode;
-	
+		var temp = str.charCodeAt(i);
 		for(var j=0; j<bytesPerSymbol;j++){			
 				var oneByte = Math.floor(temp/Math.pow(255,bytesPerSymbol-j-1));
 				arr.push(oneByte);
-				temp = temp-oneByte*Math.pow(255,bytesPerSymbol-j-1);			
+				temp -= oneByte * Math.pow(255, bytesPerSymbol - j - 1);
 		} 
 	}
 	return arr;
@@ -622,34 +619,79 @@ exports.toObject = toObject;
 /**
  * Returns IP from HTTP request by using various methods
  */
-function getClientIp(req) {
-	  var ipAddress;
-	  // If there is a proxy we cannot have the client address - just the "localhost" address. 
-	  // Fortunately, almost any proxy puts into the request header the client IP-address with key 'x-forwarded-for'. 
-	  // So, we need check firstly the proxy forwarded address.
-	  // NOTE: Amazon EC2 / Heroku workaround to get real client IP
-	  //CloudFlare is a service that proxies site traffic in order to offer performance gains and filtering options.
-	  //Usually CloudFlare adds the 'CF-Connecting-IP' header that allow to retrieve the client IP address from.
-	  var ipStr = req.headers['x-forwarded-for'] || req.headers['cf-connecting-ip'];
-	  if (ipStr) {
+//function getClientIp(req) {
+//	  var ipAddress;
+//	  // If there is a proxy we cannot have the client address - just the "localhost" address. 
+//	  // Fortunately, almost any proxy puts into the request header the client IP-address with key 'x-forwarded-for'. 
+//	  // So, we need check firstly the proxy forwarded address.
+//	  // NOTE: Amazon EC2 / Heroku workaround to get real client IP
+//	  //CloudFlare is a service that proxies site traffic in order to offer performance gains and filtering options.
+//	  //Usually CloudFlare adds the 'CF-Connecting-IP' header that allow to retrieve the client IP address from.
+//	  var ipStr = req.headers['x-forwarded-for'] || req.headers['cf-connecting-ip'];
+//	  if (ipStr) {
+//	    // 'x-forwarded-for' header may return multiple IP addresses in
+//	    // the format: "client IP, proxy 1 IP, proxy 2 IP" so take the the first one
+//	    ipAddress = ipStr.split(',')[0];
+//	  }
+//	  if (!ipAddress && req.connection) {
+//	    // Ensure getting client IP address still works in development environment
+//	    ipAddress = req.connection.remoteAddress;
+//	    if (!ipAddress && req.connection.socket){
+//	    	ipAddress = req.connection.socket.remoteAddress;
+//	    }
+//	  }
+//	  if (!ipAddress && req.socket) {
+//		  ipAddress = req.socket.remoteAddress;
+//	  }
+//	  if (ipAddress && net.isIPv4(ipAddress) && ipAddress.indexOf(':') !== -1){
+//		  ipAddress = ipAddress.split(':')[0];
+//	  }	  
+//	  return ipAddress;
+//	};
+
+//https://github.com/hellofloat/get-request-ip
+function getClientIp( request) {
+	// Header fields that can contains client IP
+	var  headers = [
+	        'x-client-ip',
+	        'x-forwarded-for',
+	        'cf-connecting-ip',
+	        'x-real-ip',
+	        'x-cluster-client-ip',
+	        'x-forwarded',
+	        'forwarded-for',
+	        'fowarded'
+	    ];
+	
+    var ip = null;
+
+    headers.some(function( header ){
+        ip = request.headers[ header ];
+        return !!ip;
+    } );
+
+    if ( !ip ) {
+        /* jshint -W126 */
+        ip = ( request.connection && request.connection.remoteAddress ) ||
+            ( request.socket && request.socket.remoteAddress ) ||
+            ( request.connection && request.connection.socket && request.connection.socket.remoteAddress ) ||
+            ( request.info && request.info.remoteAddress );
+        /* jshint +W126 */
+	  }
+
+    if (ip){
 	    // 'x-forwarded-for' header may return multiple IP addresses in
-	    // the format: "client IP, proxy 1 IP, proxy 2 IP" so take the the first one
-	    ipAddress = ipStr.split(',')[0];
+	    // the format: "client IP, proxy 1 IP, proxy 2 IP" so take the the
+		// first one
+    	ip = ip.split(',')[0];
+    	if (net.isIP(ip) == 4 /* && ip.indexOf(':') !== -1 */){
+    		// port can be joined to so we have to take the first part of
+			// splitting
+    		ip = ip.split(':')[0];
 	  }
-	  if (!ipAddress && req.connection) {
-	    // Ensure getting client IP address still works in development environment
-	    ipAddress = req.connection.remoteAddress;
-	    if (!ipAddress && req.connection.socket){
-	    	ipAddress = req.connection.socket.remoteAddress;
-	    }
-	  }
-	  if (!ipAddress && req.socket) {
-		  ipAddress = req.socket.remoteAddress;
-	  }
-	  if (ipAddress && net.isIPv4(ipAddress) && ipAddress.indexOf(':') !== -1){
-		  ipAddress = ipAddress.split(':')[0];
 	  }	  
-	  return ipAddress;
+
+    return ip;
 	};
 exports.getClientIp = getClientIp;
 
@@ -769,7 +811,7 @@ String.prototype.getBytes = function() {
  * @see http://fightingforalostcause.net/content/misc/2006/compare-email-regex.php
  */
 String.prototype.isEmail = function() {
-	var re = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|solutions|digital|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i;
+	var re = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|solutions|digital|marketing|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i;
 	return (this.search(re)>=0);
 };
 
@@ -838,7 +880,7 @@ function mergeObjs(def, obj) {
 	}
 	for ( var i in obj) {
 		if (obj.hasOwnProperty(i)) {
-			if (obj[i] != null && obj[i].constructor == Object) {
+			if (obj[i] !== null && obj[i].constructor == Object) {
 				def[i] = mergeObjs(def[i] || {}, obj[i]);
 			} else {
 				def[i] = obj[i];
@@ -865,7 +907,7 @@ exports.cloneObj = cloneObj;
  * @returns
  */
 function clone(obj){
-    if(obj == null || typeof(obj) != 'object')
+    if(obj === null || typeof(obj) != 'object')
         return obj;    
     var temp = new obj.constructor(); 
     for(var key in obj)
@@ -874,12 +916,62 @@ function clone(obj){
 }
 exports.clone = clone;
 
-function toInt(str){
-	var ret = 0;
+/**
+ * Convert string value to number with converting to specified units
+ * @param str source string (the last char can be 's', 'm', 'h', 'd')
+ * @param defValue the default value
+ * @param convertTo the string with the following value<br>
+ * s - seconds<br>
+ * m - minutes<br>
+ * h - hours<br>
+ * d - days
+ * @returns {Number}
+ */
+function toInt(str, defValue, convertTo){
+	var ret = (typeof(str) == 'number')?str:(defValue || 0);
 	if (typeof(str) == 'string' && str.length > 0) {
 		var d = parseInt(str.replace(/\D/g, ''));
 		if (!isNaN(d)){
 			ret = d;
+		}
+		if (convertTo){
+			var k = 1;
+			var from = str.slice(str.length - 1);
+			switch (from){
+			case 's':
+				switch (convertTo){
+				case 'ms': k = 1000;		break;
+				case 'm': k = 1/60;			break;
+				case 'h': k = 1/60/60;		break;
+				case 'd': k = 1/60/60/24;	break;
+				}
+				break;
+			case 'm':
+				switch (convertTo){
+				case 'ms': k = 60*1000;	break;
+				case 's': k = 60;		break;
+				case 'h': k = 1/60;		break;
+				case 'd': k = 1/60/24;	break;
+				}
+				break;
+			case 'h':
+				switch (convertTo){
+				case 'ms': k = 60*60*1000;	break;
+				case 's': k = 60*60;		break;
+				case 'm': k = 60;			break;
+				case 'd': k = 1/24;			break;
+				}
+				break;
+			case 'd':
+				switch (convertTo){
+				case 'ms': k = 24*60*60*1000;	break;
+				case 's': k = 24*60*60;			break;
+				case 'm': k = 24*60;			break;
+				case 'h': k = 24;				break;
+				}
+				
+			}
+			ret *= k;
 		}
 	}
 	return ret;
