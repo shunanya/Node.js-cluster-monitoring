@@ -2,10 +2,10 @@ Node.js-cluster-monitoring
 ==========================
 
   The current project is representing the implementation of Monitis custom monitor approach that evaluates the health state of Node.js cluster. 
-It is composed of two part - javascript plugin for Node.js server and python script that watching the file named 'monitor_result' provided by Monitor plugin. 
+It is composed of two part - JavaScript plugin for Node.js server and python script that watching the file named 'monitor_result' provided by Monitor plugin. 
 The python script processes and sends the evaluation of cluster health status into Monitis via the Monitis open API. 
 Since Node.js itself doesn't exist the embeded stats module we had to create the plugin part that accumulates some pure statistics and put it in file. 
-In contarst to [single Node.js monitor](https://github.com/shunanya/Node.js-monitoring) the file is used to excahnge the monitoring data between Node.js monitor plugin and script parts.
+In contrast to [single Node.js monitor](https://github.com/shunanya/Node.js-monitoring) the file is used to excahnge the monitoring data between Node.js monitor plugin and script parts.
 The Python script part provides the packing and sending information to the Monitis main server. 
 Because the plugin is implemented by using events-driven technology and only just collects information, it adds in fact very insignificant additional load 
 to the existing server and practically don't affect on server performance  - the main processing is done in remote script part.
@@ -26,11 +26,11 @@ Whole set of measured parameters divided on two parts
     1. Uptime - measure of time from a last server restarting without any downtime.  
     1. The monitoring time (mon_time) - the time between points of sending accumulated data.  
     1. The listen ports of servers (list) - the ports on Node server that are under monitoring.  
-    1. The Requests count (reqs) - the quantity of requsts which are receiving server during monitoring time.  
+    1. The Requests count (reqs) - the quantity of request which are receiving server during monitoring time.  
     1. The count of POST requests (post) - the percentage of POST request quantity with respect to the total number of requests during monitoring time.  
     1. The responce time of server for requests during monitoring time
-          - the average responce time 
-          - the maximum responce time
+          - the average response time 
+          - the maximum response time
     1. The throughput of server (kbps) during monitoring time
           - the input throughput (in_kbps)
           - the output throughput (out_kbps)
@@ -99,7 +99,7 @@ To use existing Python scripts you will need to do some changes that will corres
         - you may replace MONITOR_NAME, MONITOR_TAG and MONITOR_TYPE by your desired names
         - you may replace RESULT_PARAMS and ADDITIONAL_PARAMS strings by data formats definition of your monitor (strongly not recommended)
         - you can replace MON_SERVER string by your server IP address (it is necessary for title only)
-        - you can do also definition of DURATION between sending results (currently it is declared as 5 mins)
+        - you can do also definition of DURATION between sending results (currently it is declared as 5 min)
         
 That's all. Now you can controlling the script by the following command  
 
