@@ -23,33 +23,33 @@ Whole set of measured parameters divided on two parts
 
 - fixed that can be defined beforehand  
 
-    1. Uptime - measure of time from a last server restarting without any downtime.  
-    1. The monitoring time (mon_time) - the time between points of sending accumulated data.  
-    1. The listen ports of servers (list) - the ports on Node server that are under monitoring.  
-    1. The Requests count (reqs) - the quantity of request which are receiving server during monitoring time.  
-    1. The count of POST requests (post) - the percentage of POST request quantity with respect to the total number of requests during monitoring time.  
-    1. The responce time of server for requests during monitoring time
+    + Uptime - measure of time from a last server restarting without any downtime.  
+    + The monitoring time (mon_time) - the time between points of sending accumulated data.  
+    + The listen ports of servers (list) - the ports on Node server that are under monitoring.  
+    + The Requests count (reqs) - the quantity of request which are receiving server during monitoring time.  
+    + The count of POST requests (post) - the percentage of POST request quantity with respect to the total number of requests during monitoring time.  
+    + The responce time of server for requests during monitoring time
           - the average response time 
           - the maximum response time
-    1. The throughput of server (kbps) during monitoring time
+    + The throughput of server (kbps) during monitoring time
           - the input throughput (in_kbps)
           - the output throughput (out_kbps)
-    1. The count of successfully processed requests (2xx) - the percentage of request quantity responded by 2xx status code with respect to the total number of requests during monitoring time.
-    1. The server processing time (active) - the percentage of busy time of server (real processing time) during monitoring time
-    1. The server load (load) - the evaluation of number of requests per second during monitoring time.  
+    + The count of successfully processed requests (2xx) - the percentage of request quantity responded by 2xx status code with respect to the total number of requests during monitoring time.
+    + The server processing time (active) - the percentage of busy time of server (real processing time) during monitoring time
+    + The server load (load) - the evaluation of number of requests per second during monitoring time.  
   
 
 - flexible that mostly isn't fixed and can be changing time by time  
 
-    1. The status codes (codes) - the collecting status codes shown in form {1xx: value, 2xx: value, 3xx: value, 4xx: value, 5xx: value}  
-    1. The application specific parameters (e.g. client platform, client application version and so on).  
-    1. In addition the top requests lists sorted by max response time, count of requests  or other  can be added.  
-	1. The count of GET requests (get) - the percentage of GET request quantity with respect to the total number of requests during monitoring time.
-	1. The count of HEAD requests (head) - the percentage of HEAD request quantity with respect to the total number of requests during monitoring time.  
-	1. The count of PUT requests (put) - the percentage of PUT request quantity with respect to the total number of requests during monitoring time.  
-	1. The count of DELETE requests (delete) - the percentage of DELETE request quantity with respect to the total number of requests during monitoring time.  
-	1. The count of OPTIONS requests (options) - the percentage of OPTIONS request quantity with respect to the total number of requests during monitoring time.  
-	1. The count of TRACE requests (trace) - the percentage of TRACE request quantity with respect to the total number of requests during monitoring time.
+    + The status codes (codes) - the collecting status codes shown in form {1xx: value, 2xx: value, 3xx: value, 4xx: value, 5xx: value}  
+    + The application specific parameters (e.g. client platform, client application version and so on).  
+    + In addition the top requests lists sorted by max response time, count of requests  or other  can be added.  
+	+ The count of GET requests (get) - the percentage of GET request quantity with respect to the total number of requests during monitoring time.
+	+ The count of HEAD requests (head) - the percentage of HEAD request quantity with respect to the total number of requests during monitoring time.  
+	+ The count of PUT requests (put) - the percentage of PUT request quantity with respect to the total number of requests during monitoring time.  
+	+ The count of DELETE requests (delete) - the percentage of DELETE request quantity with respect to the total number of requests during monitoring time.  
+	+ The count of OPTIONS requests (options) - the percentage of OPTIONS request quantity with respect to the total number of requests during monitoring time.  
+	+ The count of TRACE requests (trace) - the percentage of TRACE request quantity with respect to the total number of requests during monitoring time.
 
 #### Getting the monitor module
 You can get the monitor as NPM module by using the following command  
