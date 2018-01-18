@@ -14,6 +14,7 @@ var events = require('events')
   , http = require('http')
   , url = require('url')
   , path = require('path')
+  , hash = require('node_hash')
   , utils = require('./util/utils')
   , logger = require('./util/logger').Logger('node_monitor');
 
@@ -145,7 +146,7 @@ function createMon() {
  *            {Object}
  * @param options
  *            {Object} the options for given server monitor 
- *            {'worker':<worker>, 'collect_all': ('yes' | 'no'), 'top':{'max':<value>, 'limit':<value>}} 
+ *            {'collect_all': ('yes' | 'no'), 'top':{'max':<value>, 'limit':<value>}} 
  *            where 
  *            top.max - the maximum number of collected requests that spent most time for execution 
  *            top.limit - the monitor have to collect info when exceeding the number of specified seconds only
@@ -154,16 +155,10 @@ function createMon() {
  * 			  null if server is already in monitor
  */
 function addToMonitors(server, options) {
-	if ('object' !== typeof(options)) {
-		options = {};
-	}
-	if (options.worker === undefined){
-		options['worker'] = 'w0';
-	}
-	var worker = options.worker;
-	logger.info(worker+': Registering Monitor: ' + JSON.stringify(options));
-//	logger.info(worker+': server\n'+sys.inspect(server));
-	var collect_all = (options.collect_all && (options.collect_all == 'yes' || options.collect_all === true )) ? true : false;
+	var collect_all = false;
+	if ('object' == typeof(options)) {// Parse options
+		logger.info(options.worker+': Registering Monitor: ' + JSON.stringify(options));
+		collect_all = !!(options.collect_all && (options.collect_all == 'yes' || options.collect_all === true ));
 	if (options['top'] && options['top']['max'] !== undefined) {
 		TOP_MAX = Math.max(TOP_MAX, Math.max(options.top.max, 0));
 	}
@@ -171,23 +166,21 @@ function addToMonitors(server, options) {
 		TOP_LIMIT = options.top.limit <= 0 ? 0 : Math.max(TOP_LIMIT, options.top.limit);
 	}
 	DURATION = (options.duration || 1);
-	if (options.port === undefined){
-		options['port'] = '?';
 	}
-	if (options.host === undefined){
-		options['host'] = 'localhost';
-	}
-	if (server && (options.active != "no" || options.active !== false) && (monitors.length === 0 || !monitors.some(function(element) {return element['server'] == server;}))) {
+
+	if (server && (options.active != "no" || options.active !== false)
+	 && (monitors.length === 0 || !monitors.some(function(element) {return element['server'] == server;}))
+	 ) {
 		var mon_server = createMon();
-		var host = worker+"."+options.host + ":" + options.port;
-		mon_server['worker'] = worker;
+		var host = options.worker+"."+options.host + ":" + options.port;
+		mon_server['worker'] = options.worker;
 		mon_server['collect_all'] = collect_all;
 		mon_server['server'] = server;
 		mon_server['listen'] = options.port;// host;
 		mon_server['pid'] = process.pid;
 		monitors.push(mon_server);
-		logger.info(worker+": Server " + host + " added to monitors chain ("+monitors.length+")");
-		logger.info(worker+": Monitoring data will be put into '"+FILE_PATH+"'");
+		logger.info(options.worker+": Server " + host + " added to monitors chain ("+monitors.length+")");
+		logger.info(options.worker+": Monitoring data will be put into '"+FILE_PATH+"'");
 		if (!schedule) {
 			schedule = require('node-schedule');
 			var rule = new schedule.RecurrenceRule();
@@ -201,7 +194,7 @@ function addToMonitors(server, options) {
 		}
 		return mon_server;
 	}
-	logger.warn(worker+": Monitor isn't activated ("+(options.active == "no"? "active = no":"couldn't add the same server")+")");
+	logger.warn(options.worker+": Monitor isn't activated ("+(options.active == "no"? "active = no":"couldn't add the same server")+")");
 	return null;
 }
 
@@ -587,16 +580,16 @@ var Monitor = exports.Monitor = function(server, options) {
 			// params['free'] = os.freemem()/os.totalmem()*100;
 			// params['cpu'] = sys.inspect(os.cpus());
 
-			// logger.debug("***Request0: "+JSON.stringify(params, true,2));
+			// logger.info(options.worker+': Request0: '+JSON.stringify(params, true,2));
 
 			req.on('add_data', function(obj) {
-				// logger.info("********req.on event*********** "+JSON.stringify(obj));
+ 			// logger.info(options.worker+': req.on add_data '+JSON.stringify(obj));
 				params['net_time'] = obj['net_time'] || 0;
 			});
 
 			req.on('end', function() {
 				var net_time = Date.now();
-//				logger.info("********req.on end*********** " + (net_time - params['timeS']));
+			// logger.info(options.worker+': req.on end ' + (net_time - params['timeS']));
 				params['net_time'] = net_time;
 			});
 
@@ -605,7 +598,7 @@ var Monitor = exports.Monitor = function(server, options) {
 			// listener for response finishing
 			if (req.socket) {
 				req.socket.on('error', function(err) {
-					logger.warn(worker+': SOCKET.ERROR ' + err + " ("+JSON.stringify(params)+") - " + (Date.now() - params['timeS'])/*+err.stack*/);
+					logger.warn(options.worker+': SOCKET.ERROR ' + err + " ("+JSON.stringify(params)+") - " + (Date.now() - params['timeS'])/*+err.stack*/);
 				});
 				req.socket.on('close', function() {
 					params['timeE'] = Date.now();
@@ -641,17 +634,15 @@ var Monitor = exports.Monitor = function(server, options) {
 						} catch (err) {
 							hdr = {};
 						}
-						logger.warn(worker+': Written:0 ' + JSON.stringify(hdr));
+						logger.warn(options.worker+': Written:0 ' + JSON.stringify(hdr));
 					}
-/*					logger.info(worker+': SOCKET.CLOSE: ' + JSON.stringify(params));*/
+/*					logger.info(options.worker+': SOCKET.CLOSE: ' + JSON.stringify(params));*/
 					process.nextTick(function(){
-//						{'requests': requests, 'post_count':post_count, 'get_count':get_count, 'net_duration':net_duration, 'pure_duration':pure_duration, 'total_duration':total_duration,
-//								'bytes_read':bytes_read, 'bytes_written':bytes_written, 'status_code':status_code}
 						addResultsToMonitor(server, 1, (req.method == "POST" ? 1 : 0), (req.method == "GET" ? 1 : 0),
 							params['net_duration'], params['pure_duration'], params['total_duration'], params['Read'],
 							params['Written'], params['Status'], params['info'], params['user'], function(error) {
 								if (error)
-									logger.error(worker+': SOCKET.CLOSE-addResultsToMonitor: error while add');
+									logger.error(options.worker+': Monitor: SOCKET.CLOSE-addResultsToMonitor: error while add');
 							});
 					});
 				});
@@ -679,13 +670,13 @@ var Monitor = exports.Monitor = function(server, options) {
 					}
 					params['Uptime'] = process.uptime();// (timeE - time_start) / 1000;// uptime in sec
 
-/*					logger.info(worker+': RES.FINISH: ' + JSON.stringify(params));*/
+/*					logger.info(options.worker+': RES.FINISH: ' + JSON.stringify(params));*/
 					process.nextTick(function(){
 						addResultsToMonitor(server, 1, (req.method == "POST" ? 1 : 0), (req.method == "GET" ? 1 : 0),
 							params['net_duration'], params['pure_duration'], params['total_duration'], params['Read'],
 							params['Written'], params['Status'], params['info'], params['user'], function(error) {
 								if (error)
-									logger.error(worker+': RES.FINISH-addResultsToMonitor: error while add');
+									logger.error(options.worker+': Monitor: RES.FINISH-addResultsToMonitor: error while add');
 							});
 					});
 				});
